@@ -16,31 +16,36 @@
         <main>
             <!-- Configuración de API Key -->
             <section class="config-section">
-                <h2>🔑 API Key de OpenAI</h2>
+                <h2>🔑 API Key de Google Gemini</h2>
                 <div class="input-group">
                     <input 
                         type="password" 
                         id="apiKey" 
-                        placeholder="sk-..."
+                        placeholder="AIza..."
                         class="input-field"
                     >
                     <button id="testApiBtn" class="btn btn-secondary">Probar</button>
                     <button id="saveApiBtn" class="btn btn-primary">Guardar</button>
                 </div>
                 <p class="help-text">
-                    Obtén tu API Key en <a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com</a>
+                    Obtén tu API Key GRATUITA en <a href="https://makersuite.google.com/app/apikey" target="_blank">Google AI Studio</a>
                 </p>
                 <div id="apiStatus" class="status-message"></div>
             </section>
 
-            <!-- Modelo de ChatGPT -->
+            <!-- Modelo de Gemini -->
             <section class="config-section">
                 <h2>🤖 Modelo</h2>
                 <select id="modelSelect" class="input-field">
-                    <option value="gpt-3.5-turbo">GPT-3.5 Turbo (Rápido y económico)</option>
-                    <option value="gpt-4">GPT-4 (Más preciso)</option>
-                    <option value="gpt-4-turbo-preview">GPT-4 Turbo (Más rápido)</option>
+                    <option value="gemini-2.5-flash">Gemini 2.5 Flash (Recomendado - GRATIS)</option>
+                    <option value="gemini-2.5-pro">Gemini 2.5 Pro (Más potente - GRATIS)</option>
+                    <option value="gemini-2.0-flash">Gemini 2.0 Flash (Rápido - GRATIS)</option>
+                    <option value="gemini-flash-latest">Gemini Flash Latest (Última versión)</option>
+                    <option value="gemini-pro-latest">Gemini Pro Latest (Última versión Pro)</option>
                 </select>
+                <p class="help-text">
+                    Todos los modelos son GRATUITOS. Gemini 2.5 Flash es el más recomendado.
+                </p>
             </section>
 
             <!-- Hotkey Global -->
@@ -82,7 +87,8 @@
             <section class="config-section">
                 <h2>📖 Cómo usar</h2>
                 <ol class="instructions">
-                    <li>Configura tu API Key de OpenAI arriba</li>
+                    <li>Obtén tu API Key GRATUITA de Google Gemini</li>
+                    <li>Configura tu API Key arriba</li>
                     <li>Selecciona el prompt que deseas usar</li>
                     <li>Selecciona texto en cualquier aplicación</li>
                     <li>Presiona <kbd>Ctrl+Shift+G</kbd> (o tu atajo personalizado)</li>

@@ -14,10 +14,12 @@ npm start
 
 ### 2. Configuración Inicial
 
-1. **Obtener API Key de OpenAI:**
-   - Ve a https://platform.openai.com/api-keys
-   - Crea una nueva API Key
-   - Cópiala
+1. **Obtener API Key de Google Gemini (GRATIS):**
+   - Ve a https://makersuite.google.com/app/apikey
+   - Inicia sesión con tu cuenta de Google
+   - Haz clic en "Create API Key" o "Get API Key"
+   - Copia la API Key generada (comienza con "AIza...")
+   - **¡No necesitas tarjeta de crédito!**
 
 2. **En la ventana de configuración:**
    - Pega tu API Key en el campo correspondiente
@@ -63,10 +65,15 @@ En la sección "Atajo de Teclado", puedes usar combinaciones como:
 
 ### Cambiar el Modelo
 
-Puedes elegir entre:
-- **GPT-3.5 Turbo**: Más rápido y económico
-- **GPT-4**: Más preciso
-- **GPT-4 Turbo**: Balance entre velocidad y calidad
+Puedes elegir entre (TODOS GRATIS):
+- **Gemini Pro**: Equilibrado y rápido (recomendado para uso general)
+- **Gemini 1.5 Pro**: Más avanzado, mejor para tareas complejas
+- **Gemini 1.5 Flash**: Optimizado para velocidad
+
+**Límites gratuitos:**
+- 60 solicitudes por minuto
+- 1,500 solicitudes por día
+- 1 millón de tokens por mes
 
 ## 🐛 Solución de Problemas
 

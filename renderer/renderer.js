@@ -107,7 +107,7 @@ testApiBtn.addEventListener('click', async () => {
     const result = await window.electronAPI.testAPI(apiKey);
     
     if (result.success) {
-        showStatus('✓ API Key válida', 'success');
+        showStatus('✓ API Key válida - ¡Gemini está funcionando!', 'success');
     } else {
         showStatus('✗ API Key inválida: ' + result.error, 'error');
     }

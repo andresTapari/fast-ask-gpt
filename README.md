@@ -1,6 +1,13 @@
 # FastAskGPT
 
-Aplicación multiplataforma que permite seleccionar texto de cualquier lugar, aplicar prompts prediseñados y reemplazarlo automáticamente con la respuesta de ChatGPT.
+Aplicación multiplataforma que permite seleccionar texto de cualquier lugar, aplicar prompts prediseñados y reemplazarlo automáticamente con la respuesta de Google Gemini.
+
+## ✨ ¿Por qué Google Gemini?
+
+- 🆓 **100% GRATUITO** - API gratuita con límites generosos
+- ⚡ **Rápido** - Respuestas casi instantáneas
+- 🧠 **Inteligente** - Modelos de última generación de Google
+- 🚀 **Sin tarjeta de crédito** - Solo necesitas una cuenta de Google
 
 ## Características
 
@@ -19,9 +26,14 @@ npm install
 ## Configuración
 
 1. Ejecuta la aplicación: `npm start`
-2. Ingresa tu API Key de OpenAI en la configuración
-3. Personaliza los prompts prediseñados
-4. Configura el hotkey si deseas cambiarlo
+2. Obtén tu API Key GRATUITA de Google Gemini:
+   - Ve a [Google AI Studio](https://makersuite.google.com/app/apikey)
+   - Inicia sesión con tu cuenta de Google
+   - Haz clic en "Create API Key"
+   - Copia la API Key generada
+3. Ingresa tu API Key en la configuración
+4. Personaliza los prompts prediseñados
+5. Configura el hotkey si deseas cambiarlo
 
 ## Uso
 
@@ -52,3 +64,16 @@ Por defecto incluye:
 - Traducir al inglés
 
 Puedes personalizar estos prompts desde la interfaz de configuración.
+
+## Modelos Disponibles (TODOS GRATIS)
+
+- **Gemini 1.5 Flash**: Modelo optimizado para velocidad (Recomendado)
+- **Gemini 1.5 Pro**: Modelo más avanzado con mayor contexto
+
+### Límites Gratuitos de Gemini
+
+- 15 solicitudes por minuto (Gemini 1.5 Flash)
+- 2 solicitudes por minuto (Gemini 1.5 Pro)
+- Millones de tokens gratuitos al mes
+
+¡Más que suficiente para uso diario!

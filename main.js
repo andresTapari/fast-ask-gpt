@@ -1,7 +1,7 @@
-const { app, BrowserWindow, globalShortcut, ipcMain, Tray, Menu, nativeImage, clipboard } = require('electron');
+const { app, BrowserWindow, globalShortcut, ipcMain, Tray, Menu, nativeImage, clipboard, Notification } = require('electron');
 const path = require('path');
 const Store = require('electron-store');
-const OpenAI = require('openai');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 const robot = require('robotjs');
 
 // Configuración persistente
@@ -10,6 +10,19 @@ const store = new Store();
 let mainWindow = null;
 let tray = null;
 let isProcessing = false;
+
+// Función para mostrar notificaciones
+function showNotification(title, body, type = 'info') {
+  // Usar notificaciones nativas del sistema
+  const notification = new Notification({
+    title: title,
+    body: body,
+    icon: type === 'error' ? null : path.join(__dirname, 'assets', 'icon.png'),
+    silent: false
+  });
+  
+  notification.show();
+}
 
 // Prompts prediseñados por defecto
 const defaultPrompts = [
@@ -31,7 +44,7 @@ if (!store.get('hotkey')) {
   store.set('hotkey', 'CommandOrControl+Shift+G');
 }
 if (!store.get('model')) {
-  store.set('model', 'gpt-3.5-turbo');
+  store.set('model', 'gemini-2.5-flash');
 }
 
 function createWindow() {
@@ -91,18 +104,40 @@ function registerGlobalShortcut() {
   // Desregistrar todos los atajos anteriores
   globalShortcut.unregisterAll();
   
-  // Registrar nuevo atajo
-  const success = globalShortcut.register(hotkey, async () => {
-    if (isProcessing) {
-      console.log('Ya hay un proceso en ejecución');
-      return;
-    }
-    
-    await processSelectedText();
-  });
+  // Intentar registrar el atajo
+  try {
+    const success = globalShortcut.register(hotkey, async () => {
+      if (isProcessing) {
+        console.log('Ya hay un proceso en ejecución');
+        return;
+      }
+      
+      await processSelectedText();
+    });
 
-  if (!success) {
-    console.error('Error al registrar el atajo global');
+    if (success) {
+      console.log(`✓ Atajo global registrado: ${hotkey}`);
+    } else {
+      console.error(`✗ No se pudo registrar el atajo: ${hotkey}`);
+      console.error('Posibles causas:');
+      console.error('- Otra aplicación está usando este atajo');
+      console.error('- Permisos insuficientes');
+      console.error('- Intenta cambiar el atajo en la configuración');
+      
+      // Intentar con un atajo alternativo
+      const alternativeHotkey = 'CommandOrControl+Alt+G';
+      const altSuccess = globalShortcut.register(alternativeHotkey, async () => {
+        if (isProcessing) return;
+        await processSelectedText();
+      });
+      
+      if (altSuccess) {
+        console.log(`✓ Atajo alternativo registrado: ${alternativeHotkey}`);
+        store.set('hotkey', alternativeHotkey);
+      }
+    }
+  } catch (error) {
+    console.error('Error al intentar registrar atajo global:', error.message);
   }
 }
 
@@ -118,18 +153,27 @@ async function processSelectedText() {
     await new Promise(resolve => setTimeout(resolve, 200)); // Esperar a que se copie
     
     // 3. Obtener el texto del portapapeles
-    const selectedText = clipboard.readText();
+    let selectedText = clipboard.readText();
+    let useClipboardMode = false;
     
-    if (!selectedText || selectedText.trim() === '') {
-      console.log('No hay texto seleccionado');
-      isProcessing = false;
-      return;
+    // Si el clipboard no cambió (no había selección), usar el clipboard original
+    if (!selectedText || selectedText === originalClipboard) {
+      selectedText = originalClipboard;
+      useClipboardMode = true;
+      
+      if (!selectedText || selectedText.trim() === '') {
+        showNotification('⚠️ Sin texto', 'No hay texto seleccionado ni en el portapapeles. Selecciona texto o copia texto al portapapeles.', 'warning');
+        isProcessing = false;
+        return;
+      }
+      
+      console.log('Usando texto del portapapeles (no había selección)');
     }
     
     // 3. Obtener configuración
     const apiKey = store.get('apiKey');
     if (!apiKey) {
-      console.error('No hay API Key configurada');
+      showNotification('❌ Error de configuración', 'No hay API Key configurada. Abre la aplicación para configurarla.', 'error');
       mainWindow.show();
       isProcessing = false;
       return;
@@ -140,51 +184,89 @@ async function processSelectedText() {
     const selectedPrompt = prompts.find(p => p.id === selectedPromptId);
     
     if (!selectedPrompt) {
-      console.error('No hay prompt seleccionado');
+      showNotification('❌ Error', 'No hay prompt seleccionado. Configura un prompt en la aplicación.', 'error');
       isProcessing = false;
       return;
     }
     
-    // 4. Llamar a la API de OpenAI
-    const openai = new OpenAI({ apiKey });
-    const model = store.get('model', 'gpt-3.5-turbo');
+    // Mostrar notificación de procesamiento
+    const mode = useClipboardMode ? 'portapapeles' : 'texto seleccionado';
+    showNotification('⏳ Procesando...', `Usando ${selectedPrompt.name} - ${mode}`, 'info');
     
-    const completion = await openai.chat.completions.create({
-      model: model,
-      messages: [
-        {
-          role: 'system',
-          content: 'Eres un asistente que ayuda a editar texto. Devuelve SOLO el texto editado sin explicaciones adicionales.'
-        },
-        {
-          role: 'user',
-          content: `${selectedPrompt.prompt}\n\n${selectedText}`
-        }
-      ],
-      temperature: 0.7,
-      max_tokens: 2000
-    });
+    // 4. Llamar a la API de Google Gemini
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const modelName = store.get('model', 'gemini-2.5-flash');
+    const model = genAI.getGenerativeModel({ model: modelName });
     
-    const processedText = completion.choices[0].message.content.trim();
+    const prompt = `${selectedPrompt.prompt}\n\nImportante: Devuelve SOLO el texto editado sin explicaciones adicionales, prefacios o introducciones. No agregues texto antes o después del resultado.\n\nTexto a procesar:\n${selectedText}`;
     
-    // 5. Copiar el texto procesado al portapapeles
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const processedText = response.text().trim();
+    
+    // 5. Si había texto seleccionado, borrarlo. Si era del clipboard, solo pegar
+    if (!useClipboardMode) {
+      // Había texto seleccionado: borrarlo antes de pegar
+      robot.keyTap('delete');
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    // Si useClipboardMode=true, no borramos nada, solo pegaremos en la posición del cursor
+    
+    // 6. Copiar el texto procesado al portapapeles
     clipboard.writeText(processedText);
     
-    // 6. Simular Ctrl+V para pegar el texto procesado
-    await new Promise(resolve => setTimeout(resolve, 200));
+    // 7. Simular Ctrl+V para pegar el texto procesado en la posición del cursor
+    await new Promise(resolve => setTimeout(resolve, 100));
     robot.keyTap('v', ['control']);
     
-    // 7. Restaurar portapapeles original después de un tiempo
-    setTimeout(() => {
-      clipboard.writeText(originalClipboard);
-    }, 1000);
+    // 8. Restaurar portapapeles original después de un tiempo (solo si no era modo clipboard)
+    if (!useClipboardMode) {
+      setTimeout(() => {
+        clipboard.writeText(originalClipboard);
+      }, 1000);
+    } else {
+      // En modo clipboard, guardar el resultado procesado en el clipboard
+      setTimeout(() => {
+        clipboard.writeText(processedText);
+      }, 1000);
+    }
     
     console.log('Texto procesado exitosamente');
-    
-    console.log('Texto procesado exitosamente');
+    showNotification('✅ Completado', 'Texto procesado exitosamente', 'success');
     
   } catch (error) {
-    console.error('Error al procesar el texto:', error);
+    // Sanitizar mensaje de error
+    let errorMessage = error.message || 'Error desconocido';
+    
+    // No mostrar API keys en errores
+    if (errorMessage.includes('AIza')) {
+      errorMessage = errorMessage.replace(/AIza[a-zA-Z0-9_-]+/g, 'AIza***HIDDEN***');
+    }
+    
+    // Mensajes de error más amigables
+    let userMessage = errorMessage;
+    let notificationTitle = '❌ Error';
+    
+    if (errorMessage.includes('404') || errorMessage.includes('not found')) {
+      userMessage = 'Modelo no disponible. Verifica el modelo en la configuración.';
+      notificationTitle = '❌ Modelo no encontrado';
+    } else if (errorMessage.includes('401') || errorMessage.includes('Incorrect API key')) {
+      userMessage = 'API Key incorrecta. Verifica tu clave en la configuración.';
+      notificationTitle = '🔒 Error de autenticación';
+    } else if (errorMessage.includes('429') || errorMessage.includes('quota')) {
+      userMessage = 'Límite de uso excedido. Espera un momento e intenta de nuevo.';
+      notificationTitle = '⏸️ Límite excedido';
+    } else if (errorMessage.includes('403')) {
+      userMessage = 'Acceso denegado. Verifica los permisos de tu API Key.';
+      notificationTitle = '🚫 Acceso denegado';
+    } else if (errorMessage.includes('network') || errorMessage.includes('ENOTFOUND')) {
+      userMessage = 'Error de conexión. Verifica tu conexión a internet.';
+      notificationTitle = '🌐 Error de red';
+    }
+    
+    console.error('Error al procesar el texto:', errorMessage);
+    showNotification(notificationTitle, userMessage, 'error');
+    
   } finally {
     isProcessing = false;
   }
@@ -229,8 +311,10 @@ ipcMain.handle('save-model', (event, model) => {
 
 ipcMain.handle('test-api', async (event, apiKey) => {
   try {
-    const openai = new OpenAI({ apiKey });
-    await openai.models.list();
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    // Hacer una prueba simple
+    await model.generateContent('Hi');
     return { success: true };
   } catch (error) {
     return { success: false, error: error.message };
