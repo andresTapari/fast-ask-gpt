@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FastAskGPT - Configuración</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚡ FastAskGPT</h1>
+            <p class="subtitle">Edita texto con ChatGPT desde cualquier lugar</p>
+        </header>
+
+        <main>
+            <!-- Configuración de API Key -->
+            <section class="config-section">
+                <h2>🔑 API Key de OpenAI</h2>
+                <div class="input-group">
+                    <input 
+                        type="password" 
+                        id="apiKey" 
+                        placeholder="sk-..."
+                        class="input-field"
+                    >
+                    <button id="testApiBtn" class="btn btn-secondary">Probar</button>
+                    <button id="saveApiBtn" class="btn btn-primary">Guardar</button>
+                </div>
+                <p class="help-text">
+                    Obtén tu API Key en <a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com</a>
+                </p>
+                <div id="apiStatus" class="status-message"></div>
+            </section>
+
+            <!-- Modelo de ChatGPT -->
+            <section class="config-section">
+                <h2>🤖 Modelo</h2>
+                <select id="modelSelect" class="input-field">
+                    <option value="gpt-3.5-turbo">GPT-3.5 Turbo (Rápido y económico)</option>
+                    <option value="gpt-4">GPT-4 (Más preciso)</option>
+                    <option value="gpt-4-turbo-preview">GPT-4 Turbo (Más rápido)</option>
+                </select>
+            </section>
+
+            <!-- Hotkey Global -->
+            <section class="config-section">
+                <h2>⌨️ Atajo de Teclado</h2>
+                <div class="input-group">
+                    <input 
+                        type="text" 
+                        id="hotkeyInput" 
+                        placeholder="CommandOrControl+Shift+G"
+                        class="input-field"
+                        readonly
+                    >
+                    <button id="saveHotkeyBtn" class="btn btn-primary">Guardar</button>
+                </div>
+                <p class="help-text">
+                    Selecciona texto en cualquier app y presiona este atajo para procesarlo
+                </p>
+            </section>
+
+            <!-- Prompts Prediseñados -->
+            <section class="config-section">
+                <h2>📝 Prompts Prediseñados</h2>
+                <div class="prompt-selector">
+                    <label for="promptSelect">Prompt activo:</label>
+                    <select id="promptSelect" class="input-field">
+                        <!-- Se llenará dinámicamente -->
+                    </select>
+                </div>
+
+                <div class="prompts-list" id="promptsList">
+                    <!-- Se llenará dinámicamente -->
+                </div>
+
+                <button id="addPromptBtn" class="btn btn-secondary">+ Agregar Prompt</button>
+            </section>
+
+            <!-- Instrucciones de uso -->
+            <section class="config-section">
+                <h2>📖 Cómo usar</h2>
+                <ol class="instructions">
+                    <li>Configura tu API Key de OpenAI arriba</li>
+                    <li>Selecciona el prompt que deseas usar</li>
+                    <li>Selecciona texto en cualquier aplicación</li>
+                    <li>Presiona <kbd>Ctrl+Shift+G</kbd> (o tu atajo personalizado)</li>
+                    <li>El texto será procesado y reemplazado automáticamente</li>
+                </ol>
+            </section>
+        </main>
+
+        <footer>
+            <p>La aplicación se mantiene en la bandeja del sistema. Cierra esta ventana para ocultarla.</p>
+        </footer>
+    </div>
+
+    <!-- Modal para agregar/editar prompts -->
+    <div id="promptModal" class="modal">
+        <div class="modal-content">
+            <h3 id="modalTitle">Nuevo Prompt</h3>
+            <div class="form-group">
+                <label for="promptName">Nombre:</label>
+                <input type="text" id="promptName" class="input-field" placeholder="Ej: Corregir texto">
+            </div>
+            <div class="form-group">
+                <label for="promptText">Instrucción:</label>
+                <textarea 
+                    id="promptText" 
+                    class="input-field textarea" 
+                    rows="4"
+                    placeholder="Ej: Corrige la ortografía y gramática del siguiente texto:"
+                ></textarea>
+            </div>
+            <div class="modal-actions">
+                <button id="cancelPromptBtn" class="btn btn-secondary">Cancelar</button>
+                <button id="savePromptBtn" class="btn btn-primary">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="renderer.js"></script>
+</body>
+</html>

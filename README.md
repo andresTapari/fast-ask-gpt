@@ -1,0 +1,54 @@
+# FastAskGPT
+
+Aplicación multiplataforma que permite seleccionar texto de cualquier lugar, aplicar prompts prediseñados y reemplazarlo automáticamente con la respuesta de ChatGPT.
+
+## Características
+
+- 🚀 Hotkey global (Ctrl+Shift+G) para procesar texto seleccionado
+- 📝 Prompts prediseñados personalizables
+- 🔄 Reemplazo automático del texto
+- 💾 Configuración persistente
+- 🖥️ Compatible con Windows y Linux
+
+## Instalación
+
+```bash
+npm install
+```
+
+## Configuración
+
+1. Ejecuta la aplicación: `npm start`
+2. Ingresa tu API Key de OpenAI en la configuración
+3. Personaliza los prompts prediseñados
+4. Configura el hotkey si deseas cambiarlo
+
+## Uso
+
+1. Selecciona texto en cualquier aplicación
+2. Presiona `Ctrl+Shift+G`
+3. El texto seleccionado será procesado por ChatGPT y reemplazado automáticamente
+
+## Desarrollo
+
+```bash
+# Iniciar en modo desarrollo
+npm start
+
+# Construir para Windows
+npm run build:win
+
+# Construir para Linux
+npm run build:linux
+```
+
+## Prompts Prediseñados
+
+Por defecto incluye:
+- Corregir ortografía y gramática
+- Mejorar redacción
+- Hacer más formal
+- Hacer más casual
+- Traducir al inglés
+
+Puedes personalizar estos prompts desde la interfaz de configuración.

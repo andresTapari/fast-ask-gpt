@@ -1,0 +1,52 @@
+{
+  "name": "fast-ask-gpt",
+  "version": "1.0.0",
+  "description": "Aplicación multiplataforma para editar texto seleccionado con ChatGPT",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
+    "build:win": "electron-builder --win",
+    "build:linux": "electron-builder --linux"
+  },
+  "keywords": [
+    "chatgpt",
+    "openai",
+    "text-editor",
+    "hotkey",
+    "clipboard"
+  ],
+  "author": "andresTapari",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1",
+    "electron-rebuild": "^3.2.9"
+  },
+  "dependencies": {
+    "electron-store": "^8.1.0",
+    "openai": "^4.20.1",
+    "robotjs": "^0.6.0"
+  },
+  "build": {
+    "appId": "com.andrestapari.fast-ask-gpt",
+    "productName": "FastAskGPT",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "assets/icon.ico"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "icon": "assets/icon.png",
+      "category": "Utility"
+    }
+  }
+}
